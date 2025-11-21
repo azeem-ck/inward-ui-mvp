@@ -316,6 +316,15 @@
                     class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-12 gap-4">
                     <!-- Slots will be dynamically populated by the script -->
                 </div>
+                <!-- Exit Inward Button -->
+                <div class="mt-8 flex justify-center">
+                    <button id="btn-exit-inward" class="px-8 py-4 bg-red-50 text-red-700 font-bold text-lg rounded-xl hover:bg-red-100 border border-red-200 transition-colors flex items-center shadow-sm hover:shadow-md">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                        Exit Inward
+                    </button>
+                </div>
             </div>
 
         </main>
@@ -414,7 +423,6 @@
                     <h2 class="text-xl font-bold text-center text-primary-darkest mb-4">Tote Configuration</h2>
                     <div id="tote-visualization-container" class="flex-grow flex items-center justify-center">
                          <div class="tote-vis-container tote-vis-1">
-                            <div class="tote-vis-partition">1</div>
                         </div>
                     </div>
                     <p class="text-sm font-semibold text-center text-gray-500 mt-2">
@@ -467,7 +475,8 @@
             const landingView = document.getElementById('landing-view');
             const gridView = document.getElementById('grid-view');
             const btnBeginInward = document.getElementById('btn-begin-inward');
-            
+            const btnExitInward = document.getElementById('btn-exit-inward');
+
             // Preflight Elements
             const preflightModal = document.getElementById('preflight-modal');
             const preflightConfirm = document.getElementById('preflight-confirm');
@@ -555,6 +564,11 @@
                 // Stay on landing page
             });
 
+            // Exit Logic
+            btnExitInward.addEventListener('click', () => {
+                switchView('landing-view');
+            });
+
 
             // --- GRID INITIALIZATION --- //
             function initializeApp() {
@@ -576,8 +590,9 @@
                     if (slotState.status === 'filled') {
                         innerHtml = `
                     <div class="flex-grow flex flex-col items-center justify-center text-center">
-                        <svg class="w-12 h-12 text-green-700" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M10 15.172l9.192-9.193 1.415 1.414L10 18l-6.364-6.364 1.414-1.414z"/>
+                        <!-- Hourglass Icon with Pulse Animation -->
+                        <svg class="w-12 h-12 text-green-700 animate-pulse" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M6 2v6h.01L6 8.01 10 12l-4 4 .01.01H6V22h12v-5.99h-.01L18 16l-4-4 4-3.99-.01-.01H18V2H6z"/>
                         </svg>
                     </div>`;
                     } else {
