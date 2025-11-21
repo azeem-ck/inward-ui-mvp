@@ -140,9 +140,17 @@
             border-color: var(--primary-dark);
         }
 
-        .slot-filled {
-            background-color: var(--color-filled-bg);
-            border: 2px solid var(--color-filled-border);
+        /* Processing State (Amber Hourglass) */
+        .slot-processing {
+            background-color: #FFFBEB; /* Amber 50 */
+            border: 2px solid #F59E0B; /* Amber 500 */
+            cursor: not-allowed;
+        }
+
+        /* Completed State (Green Check) */
+        .slot-completed {
+            background-color: #ECFDF5; /* Emerald 50 */
+            border: 2px solid #10B981; /* Emerald 500 */
             cursor: not-allowed;
         }
 
@@ -587,12 +595,21 @@
                     slotWrapper.dataset.slotId = slotId;
 
                     let innerHtml = '';
-                    if (slotState.status === 'filled') {
+                    
+                    if (slotState.status === 'processing') {
+                        // Processing: Amber Hourglass
                         innerHtml = `
                     <div class="flex-grow flex flex-col items-center justify-center text-center">
-                        <!-- Hourglass Icon with Pulse Animation -->
-                        <svg class="w-12 h-12 text-green-700 animate-pulse" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                        <svg class="w-12 h-12 text-amber-500 animate-pulse" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M6 2v6h.01L6 8.01 10 12l-4 4 .01.01H6V22h12v-5.99h-.01L18 16l-4-4 4-3.99-.01-.01H18V2H6z"/>
+                        </svg>
+                    </div>`;
+                    } else if (slotState.status === 'completed') {
+                        // Completed: Green Check
+                        innerHtml = `
+                    <div class="flex-grow flex flex-col items-center justify-center text-center">
+                         <svg class="w-12 h-12 text-green-700" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M10 15.172l9.192-9.193 1.415 1.414L10 18l-6.364-6.364 1.414-1.414z"/>
                         </svg>
                     </div>`;
                     } else {
@@ -655,9 +672,9 @@
             modalDoneBtn.onclick = () => {
                 if (!currentSlotId) return;
                 
-                // Update state to filled
+                // 1. Set status to 'processing' (Amber Hourglass)
                 slotData[currentSlotId] = {
-                    status: 'filled',
+                    status: 'processing',
                     toteType: '1-partition'
                 };
 
@@ -665,15 +682,25 @@
                 const slotIdToReset = currentSlotId;
 
                 closeInwardingModal();
-                initializeApp(); // Re-render grid
+                initializeApp(); // Re-render grid to show processing state
 
-                // Revert to default state after 1 minute (60000ms)
+                // 2. Wait 1 minute (60000ms)
                 setTimeout(() => {
-                    if (slotData[slotIdToReset] && slotData[slotIdToReset].status === 'filled') {
-                        slotData[slotIdToReset] = { status: 'empty' };
-                        initializeApp();
+                    if (slotData[slotIdToReset] && slotData[slotIdToReset].status === 'processing') {
+                        // 3. Change status to 'completed' (Green Check)
+                        slotData[slotIdToReset] = { status: 'completed' };
+                        initializeApp(); // Re-render grid
+
+                        // 4. Wait 5 seconds
+                        setTimeout(() => {
+                             if (slotData[slotIdToReset] && slotData[slotIdToReset].status === 'completed') {
+                                // 5. Revert to 'empty'
+                                slotData[slotIdToReset] = { status: 'empty' };
+                                initializeApp(); // Re-render grid
+                             }
+                        }, 5000);
                     }
-                }, 60000);
+                }, 30000);
             };
 
             // --- GLOBAL EVENT LISTENERS --- //
