@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tote Inwarding UI</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-main: #F0EFE9;
+            --primary-dark: #003C3C;
+            --primary-darkest: #0D2021;
+            --color-waiting-bg: #FFFFFF;
+            --color-waiting-border: #6B7280;
+            --color-filled-bg: #D1FAE5;
+            --color-filled-border: #065F46;
+            --color-disabled-bg: #E5E7EB;
+            --color-disabled-border: #9CA3AF;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--primary-darkest);
+        }
+
+        /* --- Navigation --- */
+        .nav-link {
+            color: var(--primary-dark);
+        }
+
+        .nav-link:hover {
+            color: var(--primary-darkest);
+            background-color: #e5e7eb;
+        }
+
+        .nav-link-active {
+            background-color: var(--primary-dark);
+            color: white;
+        }
+
+        /* --- Views & Transitions --- */
+        .view-section {
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .view-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- Landing Page --- */
+        .landing-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: calc(100vh - 140px); /* rough adjustment for header */
+            text-align: center;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-dark);
+            color: white;
+            padding: 16px 32px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1.25rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: all 0.2s;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-darkest);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        /* --- Pre-flight List --- */
+        .check-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid #F3F4F6;
+        }
+        .check-item:last-child {
+            border-bottom: none;
+        }
+        .check-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .check-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary-dark);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        .check-success {
+            color: #10B981;
+        }
+        .check-pending {
+            color: #D1D5DB;
+        }
+        
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+
+        /* --- Inwarding Slot States --- */
+        .inwarding-slot {
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .slot-empty {
+            background-color: var(--color-waiting-bg);
+            border: 2px dashed var(--color-waiting-border);
+            cursor: pointer;
+        }
+
+        .slot-empty:hover {
+            transform: scale(1.03);
+            border-color: var(--primary-dark);
+        }
+
+        .slot-filled {
+            background-color: var(--color-filled-bg);
+            border: 2px solid var(--color-filled-border);
+            cursor: not-allowed;
+        }
+
+        /* --- Modal Panes --- */
+        #inwarding-modal-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 24px;
+        }
+
+        .modal-pane {
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            background-color: #F9FAFB;
+            border-radius: 12px;
+            border: 1px solid #E5E7EB;
+        }
+
+        /* Left Pane: Form */
+        .partition-form-group {
+            background-color: white;
+            border-radius: 8px;
+            border: 1px solid #D1D5DB;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+
+        .partition-form-group label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #6B7280;
+            margin-bottom: 4px;
+        }
+
+        .partition-form-group input {
+            width: 100%;
+            border-radius: 6px;
+            border: 1px solid #D1D5DB;
+            padding: 8px 10px;
+            font-size: 0.875rem;
+        }
+
+        .partition-form-group input:focus {
+            outline: none;
+            border-color: var(--primary-dark);
+            box-shadow: 0 0 0 2px rgba(0, 60, 60, 0.2);
+        }
+
+
+        /* Center Pane: Visualization */
+        .tote-vis-container {
+            width: 100%;
+            max-width: 280px;
+            aspect-ratio: 2 / 3;
+            border: 4px solid var(--primary-darkest);
+            border-radius: 8px;
+            margin: auto;
+            display: grid;
+            background-color: #E5E7EB;
+            grid-template-columns: 1fr; /* Always 1 partition now */
+        }
+
+        .tote-vis-partition {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+        }
+
+        /* Right Pane: Action */
+        .placement-animation-container {
+            height: 200px;
+            background: linear-gradient(to top, #D1D5DB 30%, transparent 30%);
+            border: 2px solid #9CA3AF;
+            border-radius: 8px;
+            margin-top: auto;
+            margin-bottom: auto;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .placement-animation-tote {
+            width: 60%;
+            height: 40%;
+            background-color: var(--primary-dark);
+            border: 3px solid var(--primary-darkest);
+            border-radius: 8px;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: place-tote 3s ease-in-out infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        @keyframes place-tote {
+            0% { top: -50%; }
+            30% { top: 55%; }
+            40% { top: 50%; }
+            60% { top: 50%; }
+            90% { top: -50%; }
+            100% { top: -50%; }
+        }
+        
+        .btn-disabled {
+            background-color: #9CA3AF !important;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+
+<body class="antialiased">
+
+    <div id="root" class="flex flex-col h-screen">
+        <!-- Header -->
+        <header class="bg-white border-b border-gray-200 shadow-sm">
+            <div class="container mx-auto px-4">
+                <div class="flex items-center justify-between h-16">
+                    <div class="flex items-center space-x-8">
+                        <img src="https://placehold.co/150x40/003C3C/FFFFFF?text=Cartesian+Kinetics"
+                            alt="Cartesian Kinetics Logo" class="h-10">
+                        <nav class="hidden md:flex items-center space-x-1">
+                            <a href="#" class="px-3 py-2 text-sm font-medium rounded-md nav-link">Order Fulfillment</a>
+                            <a href="#" class="px-3 py-2 text-sm font-semibold rounded-md nav-link-active">Inbounds</a>
+                            <a href="#" class="px-3 py-2 text-sm font-medium rounded-md nav-link">Replenishment</a>
+                            <a href="#" class="px-3 py-2 text-sm font-medium rounded-md nav-link">Cycle Count</a>
+                        </nav>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div class="text-right text-xs text-primary-dark">
+                            <div id="date-time">01:40 PM Thu 2025</div>
+                            <div>John Doe</div>
+                        </div>
+                        <a href="#" class="cursor-pointer">
+                            <img src="https://placehold.co/40x40/EFEFEF/333333?text=JD" alt="User Avatar"
+                                class="w-10 h-10 rounded-full"
+                                onerror="this.onerror=null;this.src='https://placehold.co/40x40/EFEFEF/333333?text=JD';">
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="flex-grow p-4 md:p-6">
+            
+            <!-- VIEW 1: Landing Page -->
+            <div id="landing-view" class="view-section active container mx-auto">
+                <div class="landing-container">
+                    <div class="mb-8 p-6 bg-white rounded-2xl shadow-sm border border-gray-100 max-w-2xl w-full">
+                        <h1 class="text-3xl font-bold text-primary-darkest mb-2">Inbound Operations</h1>
+                        <p class="text-gray-500 mb-8">Prepare the station for tote induction.</p>
+                        <button id="btn-begin-inward" class="btn-primary">
+                            Begin Inward
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW 2: Grid View -->
+            <div id="grid-view" class="view-section container mx-auto">
+                <h2 class="text-lg font-semibold text-primary-darkest mb-4">Select Slot for Tote Inwarding</h2>
+                <div id="inwarding-slots-grid"
+                    class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-12 gap-4">
+                    <!-- Slots will be dynamically populated by the script -->
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Pre-flight Check Modal -->
+    <div id="preflight-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
+            <div class="p-6 border-b border-gray-100">
+                <h3 class="text-xl font-bold text-primary-darkest">System Pre-flight Check</h3>
+                <p class="text-xs text-gray-500 mt-1">Verifying operational conditions...</p>
+            </div>
+            <div class="p-0">
+                <div id="checklist-container">
+                    <!-- Check Item 1 -->
+                    <div class="check-item" id="check-1">
+                        <div class="check-icon"><div class="bg-gray-200 rounded-full w-3 h-3"></div></div>
+                        <div>
+                            <p class="font-semibold text-sm text-gray-700">Storage Availability</p>
+                            <p class="text-xs text-gray-500">Validate at least one empty location available</p>
+                        </div>
+                    </div>
+                    <!-- Check Item 2 -->
+                    <div class="check-item" id="check-2">
+                        <div class="check-icon"><div class="bg-gray-200 rounded-full w-3 h-3"></div></div>
+                        <div>
+                            <p class="font-semibold text-sm text-gray-700">Replenishment Status</p>
+                            <p class="text-xs text-gray-500">Validate no replenishments in progress</p>
+                        </div>
+                    </div>
+                    <!-- Check Item 3 -->
+                    <div class="check-item" id="check-3">
+                        <div class="check-icon"><div class="bg-gray-200 rounded-full w-3 h-3"></div></div>
+                        <div>
+                            <p class="font-semibold text-sm text-gray-700">Fulfillment Status</p>
+                            <p class="text-xs text-gray-500">Validate no fulfillments in progress</p>
+                        </div>
+                    </div>
+                    <!-- Check Item 4 -->
+                    <div class="check-item" id="check-4">
+                        <div class="check-icon"><div class="bg-gray-200 rounded-full w-3 h-3"></div></div>
+                        <div>
+                            <p class="font-semibold text-sm text-gray-700">System Health</p>
+                            <p class="text-xs text-gray-500">Validate no system health warnings</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Final Confirmation Step (Hidden initially) -->
+            <div id="preflight-confirm" class="hidden p-6 bg-gray-50 border-t border-gray-100">
+                <p class="text-center font-bold text-lg text-primary-darkest mb-4">Begin Inward?</p>
+                <div class="flex space-x-4">
+                    <button id="preflight-no" class="flex-1 py-3 bg-red-100 text-red-700 font-semibold rounded-lg hover:bg-red-200 transition-colors">No</button>
+                    <button id="preflight-yes" class="flex-1 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-colors">Yes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Bin Details Modal Dialog -->
+    <div id="inwarding-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-7xl p-8">
+            <!-- Main 3-Pane Content -->
+            <div id="inwarding-modal-content">
+
+                <!-- ===== LEFT PANE: DATA ENTRY ===== -->
+                <div class="modal-pane">
+                    <h2 class="text-xl font-bold text-center text-primary-darkest mb-4">Tote Details</h2>
+                    <div class="flex-grow overflow-y-auto pr-2">
+                        <!-- Shared Tote ID -->
+                        <div class="partition-form-group bg-gray-100">
+                            <label for="tote-id">Tote ID</label>
+                            <input type="text" id="tote-id" name="tote-id" placeholder="Scan or enter Tote ID" class="modal-input">
+                        </div>
+                        <!-- Dynamic Partition Forms (Now Static 1 Partition) -->
+                        <div id="partition-forms-container">
+                            <div class="partition-form-group">
+                                <p class="font-semibold text-sm text-primary-darkest mb-3 hidden">Partition 1</p>
+                                <div>
+                                    <label for="sku-id-0">SKU ID</label>
+                                    <input type="text" id="sku-id-0" name="sku-id-0" placeholder="Scan or enter SKU" class="modal-input">
+                                </div>
+                                <div class="mt-2">
+                                    <label for="unit-count-0">Unit Count</label>
+                                    <input type="number" id="unit-count-0" name="unit-count-0" placeholder="Enter quantity" min="1" class="modal-input">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== CENTER PANE: VISUALIZATION ===== -->
+                <div class="modal-pane">
+                    <h2 class="text-xl font-bold text-center text-primary-darkest mb-4">Tote Configuration</h2>
+                    <div id="tote-visualization-container" class="flex-grow flex items-center justify-center">
+                         <div class="tote-vis-container tote-vis-1">
+                            <div class="tote-vis-partition">1</div>
+                        </div>
+                    </div>
+                    <p class="text-sm font-semibold text-center text-gray-500 mt-2">
+                        Slot: <span id="modal-slot-id" class="font-bold text-primary-darkest"></span>
+                    </p>
+                </div>
+
+                <!-- ===== RIGHT PANE: ACTION ===== -->
+                <div class="modal-pane">
+                    <h2 class="text-xl font-bold text-center text-primary-darkest mb-4">Confirm Placement</h2>
+                    <!-- Placement Animation -->
+                    <div class="placement-animation-container">
+                        <div class="placement-animation-tote">TOTE</div>
+                    </div>
+                    <p class="text-sm font-semibold text-center text-gray-500 my-4">
+                        Place tote into the highlighted slot.
+                    </p>
+                    <!-- Action Buttons -->
+                    <div class="space-y-3 mt-auto">
+                        <button id="modal-done-btn" disabled
+                            class="w-full text-center py-4 px-4 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 text-lg btn-disabled">Done</button>
+                        <p class="text-xs text-center text-red-700 font-medium">
+                            Acknowledge only after ensuring the tote is placed.
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+            <!-- Close button in corner -->
+            <button onclick="closeInwardingModal()"
+                class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+    </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // DOM Elements
+            const slotsGrid = document.getElementById('inwarding-slots-grid');
+            const modal = document.getElementById('inwarding-modal');
+            const dateTimeElement = document.getElementById('date-time');
+            const modalDoneBtn = document.getElementById('modal-done-btn');
+            
+            // Views
+            const landingView = document.getElementById('landing-view');
+            const gridView = document.getElementById('grid-view');
+            const btnBeginInward = document.getElementById('btn-begin-inward');
+            
+            // Preflight Elements
+            const preflightModal = document.getElementById('preflight-modal');
+            const preflightConfirm = document.getElementById('preflight-confirm');
+            const preflightYes = document.getElementById('preflight-yes');
+            const preflightNo = document.getElementById('preflight-no');
+
+            // Modal Inputs for Validation
+            const inputToteId = document.getElementById('tote-id');
+            const inputSkuId = document.getElementById('sku-id-0');
+            const inputUnitCount = document.getElementById('unit-count-0');
+
+            // --- State --- //
+            let slotData = {};
+            let currentSlotId = null;
+
+            // --- DATE & TIME --- //
+            function updateDateTime() {
+                const now = new Date();
+                const options = { weekday: 'short', hour: '2-digit', minute: '2-digit', hour12: true };
+                const timeString = now.toLocaleTimeString('en-US', options).replace(' ', '');
+                const yearString = now.getFullYear();
+                dateTimeElement.textContent = `${timeString} ${now.toLocaleDateString('en-US', { weekday: 'short' })} ${yearString}`;
+            }
+
+            // --- VIEW NAVIGATION --- //
+            function switchView(viewId) {
+                document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+                document.getElementById(viewId).classList.add('active');
+            }
+
+            // --- PRE-FLIGHT LOGIC --- //
+            btnBeginInward.addEventListener('click', () => {
+                preflightModal.classList.remove('hidden');
+                runPreflightChecks();
+            });
+
+            function runPreflightChecks() {
+                const checks = [1, 2, 3, 4];
+                let currentCheck = 0;
+
+                // Reset UI
+                checks.forEach(i => {
+                    const iconContainer = document.querySelector(`#check-${i} .check-icon`);
+                    iconContainer.innerHTML = `<div class="bg-gray-200 rounded-full w-3 h-3"></div>`; // Reset to dot
+                    document.querySelector(`#check-${i} p`).classList.remove('text-gray-700', 'text-green-600');
+                    document.querySelector(`#check-${i} p`).classList.add('text-gray-500');
+                });
+                preflightConfirm.classList.add('hidden');
+
+                function processNext() {
+                    if (currentCheck >= checks.length) {
+                        // All Done
+                        setTimeout(() => {
+                            preflightConfirm.classList.remove('hidden');
+                        }, 500);
+                        return;
+                    }
+
+                    const id = checks[currentCheck];
+                    const iconContainer = document.querySelector(`#check-${id} .check-icon`);
+                    
+                    // Show Spinner
+                    iconContainer.innerHTML = `<div class="check-spinner"></div>`;
+                    document.querySelector(`#check-${id} p`).classList.add('text-gray-700');
+
+                    // Simulate Check Duration (800ms)
+                    setTimeout(() => {
+                        // Show Success
+                        iconContainer.innerHTML = `<svg class="w-6 h-6 check-success" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`;
+                        currentCheck++;
+                        processNext();
+                    }, 800);
+                }
+
+                processNext();
+            }
+
+            preflightYes.addEventListener('click', () => {
+                preflightModal.classList.add('hidden');
+                switchView('grid-view');
+            });
+
+            preflightNo.addEventListener('click', () => {
+                preflightModal.classList.add('hidden');
+                // Stay on landing page
+            });
+
+
+            // --- GRID INITIALIZATION --- //
+            function initializeApp() {
+                slotsGrid.innerHTML = '';
+                // Change: All 12 slots are enabled
+                for (let i = 1; i <= 12; i++) {
+                    const slotId = `${i}.1.1.`;
+                    const isActive = true; // All active now
+                    
+                    let slotState = slotData[slotId] ? slotData[slotId] : { status: 'empty' };
+                    slotData[slotId] = slotState;
+
+                    const slotWrapper = document.createElement('div');
+                    slotWrapper.id = `slot-${slotId}`;
+                    slotWrapper.className = `inwarding-slot rounded-lg p-3 flex flex-col aspect-[2/4] slot-${slotState.status}`;
+                    slotWrapper.dataset.slotId = slotId;
+
+                    let innerHtml = '';
+                    if (slotState.status === 'filled') {
+                        innerHtml = `
+                    <div class="flex-grow flex flex-col items-center justify-center text-center">
+                        <svg class="w-12 h-12 text-green-700" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M10 15.172l9.192-9.193 1.415 1.414L10 18l-6.364-6.364 1.414-1.414z"/>
+                        </svg>
+                    </div>`;
+                    } else {
+                        innerHtml = `<div class="flex-grow"></div>`;
+                    }
+                    slotWrapper.innerHTML = innerHtml + `<p class="text-xs text-center text-primary-dark mt-2">Slot:<br>${slotId}</p>`;
+
+                    slotsGrid.appendChild(slotWrapper);
+
+                    if (slotState.status === 'empty') {
+                        // Change: Directly open modal on click
+                        slotWrapper.addEventListener('click', () => openInwardingModal(slotId));
+                    }
+                }
+            }
+
+            // --- BIN DETAILS MODAL LOGIC --- //
+            function openInwardingModal(slotId) {
+                currentSlotId = slotId;
+                document.getElementById('modal-slot-id').textContent = slotId;
+                
+                // Reset Inputs
+                inputToteId.value = '';
+                inputSkuId.value = '';
+                inputUnitCount.value = '';
+                validateInputs(); // Initialize button state
+
+                // Show Modal
+                modal.classList.remove('hidden');
+            }
+
+            window.closeInwardingModal = () => {
+                modal.classList.add('hidden');
+                currentSlotId = null;
+            }
+
+            // --- VALIDATION LOGIC --- //
+            function validateInputs() {
+                const toteId = inputToteId.value.trim();
+                const skuId = inputSkuId.value.trim();
+                const count = inputUnitCount.value;
+
+                const isValid = toteId.length > 0 && skuId.length > 0 && count > 0;
+
+                if (isValid) {
+                    modalDoneBtn.disabled = false;
+                    modalDoneBtn.classList.remove('btn-disabled');
+                } else {
+                    modalDoneBtn.disabled = true;
+                    modalDoneBtn.classList.add('btn-disabled');
+                }
+            }
+
+            // Attach listeners
+            [inputToteId, inputSkuId, inputUnitCount].forEach(input => {
+                input.addEventListener('input', validateInputs);
+            });
+
+            // Done Action
+            modalDoneBtn.onclick = () => {
+                if (!currentSlotId) return;
+                
+                // Update state to filled
+                slotData[currentSlotId] = {
+                    status: 'filled',
+                    toteType: '1-partition'
+                };
+
+                // Capture ID for the timeout closure
+                const slotIdToReset = currentSlotId;
+
+                closeInwardingModal();
+                initializeApp(); // Re-render grid
+
+                // Revert to default state after 1 minute (60000ms)
+                setTimeout(() => {
+                    if (slotData[slotIdToReset] && slotData[slotIdToReset].status === 'filled') {
+                        slotData[slotIdToReset] = { status: 'empty' };
+                        initializeApp();
+                    }
+                }, 60000);
+            };
+
+            // --- GLOBAL EVENT LISTENERS --- //
+            modal.addEventListener('click', e => { if (e.target.id === 'inwarding-modal') closeInwardingModal(); });
+
+            // --- START APP --- //
+            initializeApp();
+            updateDateTime();
+            setInterval(updateDateTime, 60000);
+        });
+    </script>
+
+</body>
+</html>
