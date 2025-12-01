@@ -45,84 +45,6 @@
             color: white;
         }
 
-        /* --- Views & Transitions --- */
-        .view-section {
-            display: none;
-            animation: fadeIn 0.4s ease-out;
-        }
-
-        .view-section.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* --- Landing Page --- */
-        .landing-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: calc(100vh - 140px); /* rough adjustment for header */
-            text-align: center;
-        }
-
-        .btn-primary {
-            background-color: var(--primary-dark);
-            color: white;
-            padding: 16px 32px;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 1.25rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            transition: all 0.2s;
-        }
-
-        .btn-primary:hover {
-            background-color: var(--primary-darkest);
-            transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-        }
-
-        /* --- Pre-flight List --- */
-        .check-item {
-            display: flex;
-            align-items: center;
-            padding: 12px;
-            border-bottom: 1px solid #F3F4F6;
-        }
-        .check-item:last-child {
-            border-bottom: none;
-        }
-        .check-icon {
-            width: 24px;
-            height: 24px;
-            margin-right: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .check-spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid var(--primary-dark);
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            animation: spin 1s linear infinite;
-        }
-        .check-success {
-            color: #10B981;
-        }
-        .check-pending {
-            color: #D1D5DB;
-        }
-        
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-
         /* --- Inwarding Slot States --- */
         .inwarding-slot {
             transition: all 0.3s ease;
@@ -304,21 +226,8 @@
         <!-- Main Content Area -->
         <main class="flex-grow p-4 md:p-6">
             
-            <!-- VIEW 1: Landing Page -->
-            <div id="landing-view" class="view-section active container mx-auto">
-                <div class="landing-container">
-                    <div class="mb-8 p-6 bg-white rounded-2xl shadow-sm border border-gray-100 max-w-2xl w-full">
-                        <h1 class="text-3xl font-bold text-primary-darkest mb-2">Inbound Operations</h1>
-                        <p class="text-gray-500 mb-8">Prepare the station for tote induction.</p>
-                        <button id="btn-begin-inward" class="btn-primary">
-                            Begin Inward
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- VIEW 2: Grid View -->
-            <div id="grid-view" class="view-section container mx-auto">
+            <!-- Grid View (Default View) -->
+            <div id="grid-view" class="container mx-auto">
                 <div class="flex flex-col md:flex-row md:justify-between md:items-end mb-6 gap-4">
                     <h2 class="text-lg font-semibold text-primary-darkest">Select Slot for Tote Inwarding</h2>
                     <div class="bg-white px-5 py-3 rounded-xl border border-gray-200 shadow-sm text-sm font-medium text-gray-600 flex items-center">
@@ -332,75 +241,10 @@
                     class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-12 gap-4">
                     <!-- Slots will be dynamically populated by the script -->
                 </div>
-                <!-- Exit Inward Button -->
-                <div class="mt-8 flex justify-center">
-                    <button id="btn-exit-inward" class="px-8 py-4 bg-red-50 text-red-700 font-bold text-lg rounded-xl hover:bg-red-100 border border-red-200 transition-colors flex items-center shadow-sm hover:shadow-md">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                        </svg>
-                        Exit Inward
-                    </button>
-                </div>
             </div>
 
         </main>
     </div>
-
-    <!-- Pre-flight Check Modal -->
-    <div id="preflight-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden">
-            <div class="p-6 border-b border-gray-100">
-                <h3 class="text-xl font-bold text-primary-darkest">System Pre-flight Check</h3>
-                <p class="text-xs text-gray-500 mt-1">Verifying operational conditions...</p>
-            </div>
-            <div class="p-0">
-                <div id="checklist-container">
-                    <!-- Check Item 1 -->
-                    <div class="check-item" id="check-1">
-                        <div class="check-icon"><div class="bg-gray-200 rounded-full w-3 h-3"></div></div>
-                        <div>
-                            <p class="font-semibold text-sm text-gray-700">Storage Availability</p>
-                            <p class="text-xs text-gray-500">Validate at least one empty location available</p>
-                        </div>
-                    </div>
-                    <!-- Check Item 2 -->
-                    <div class="check-item" id="check-2">
-                        <div class="check-icon"><div class="bg-gray-200 rounded-full w-3 h-3"></div></div>
-                        <div>
-                            <p class="font-semibold text-sm text-gray-700">Replenishment Status</p>
-                            <p class="text-xs text-gray-500">Validate no replenishments in progress</p>
-                        </div>
-                    </div>
-                    <!-- Check Item 3 -->
-                    <div class="check-item" id="check-3">
-                        <div class="check-icon"><div class="bg-gray-200 rounded-full w-3 h-3"></div></div>
-                        <div>
-                            <p class="font-semibold text-sm text-gray-700">Fulfillment Status</p>
-                            <p class="text-xs text-gray-500">Validate no fulfillments in progress</p>
-                        </div>
-                    </div>
-                    <!-- Check Item 4 -->
-                    <div class="check-item" id="check-4">
-                        <div class="check-icon"><div class="bg-gray-200 rounded-full w-3 h-3"></div></div>
-                        <div>
-                            <p class="font-semibold text-sm text-gray-700">System Health</p>
-                            <p class="text-xs text-gray-500">Validate no system health warnings</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Final Confirmation Step (Hidden initially) -->
-            <div id="preflight-confirm" class="hidden p-6 bg-gray-50 border-t border-gray-100">
-                <p class="text-center font-bold text-lg text-primary-darkest mb-4">Begin Inward?</p>
-                <div class="flex space-x-4">
-                    <button id="preflight-no" class="flex-1 py-3 bg-red-100 text-red-700 font-semibold rounded-lg hover:bg-red-200 transition-colors">No</button>
-                    <button id="preflight-yes" class="flex-1 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-colors">Yes</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
 
     <!-- Bin Details Modal Dialog -->
     <div id="inwarding-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
@@ -487,18 +331,6 @@
             const dateTimeElement = document.getElementById('date-time');
             const modalDoneBtn = document.getElementById('modal-done-btn');
             
-            // Views
-            const landingView = document.getElementById('landing-view');
-            const gridView = document.getElementById('grid-view');
-            const btnBeginInward = document.getElementById('btn-begin-inward');
-            const btnExitInward = document.getElementById('btn-exit-inward');
-
-            // Preflight Elements
-            const preflightModal = document.getElementById('preflight-modal');
-            const preflightConfirm = document.getElementById('preflight-confirm');
-            const preflightYes = document.getElementById('preflight-yes');
-            const preflightNo = document.getElementById('preflight-no');
-
             // Modal Inputs for Validation
             const inputToteId = document.getElementById('tote-id');
             const inputSkuId = document.getElementById('sku-id-0');
@@ -519,86 +351,12 @@
                 dateTimeElement.textContent = `${timeString} ${now.toLocaleDateString('en-US', { weekday: 'short' })} ${yearString}`;
             }
 
-            // --- VIEW NAVIGATION --- //
-            function switchView(viewId) {
-                document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-                document.getElementById(viewId).classList.add('active');
-            }
-
-            // --- PRE-FLIGHT LOGIC --- //
-            btnBeginInward.addEventListener('click', () => {
-                // Reset storage count
-                availableStorageCount = 48;
-                storageCountDisplay.textContent = availableStorageCount;
-
-                preflightModal.classList.remove('hidden');
-                runPreflightChecks();
-            });
-
-            function runPreflightChecks() {
-                const checks = [1, 2, 3, 4];
-                let currentCheck = 0;
-
-                // Reset UI
-                checks.forEach(i => {
-                    const iconContainer = document.querySelector(`#check-${i} .check-icon`);
-                    iconContainer.innerHTML = `<div class="bg-gray-200 rounded-full w-3 h-3"></div>`; // Reset to dot
-                    document.querySelector(`#check-${i} p`).classList.remove('text-gray-700', 'text-green-600');
-                    document.querySelector(`#check-${i} p`).classList.add('text-gray-500');
-                });
-                preflightConfirm.classList.add('hidden');
-
-                function processNext() {
-                    if (currentCheck >= checks.length) {
-                        // All Done
-                        setTimeout(() => {
-                            preflightConfirm.classList.remove('hidden');
-                        }, 500);
-                        return;
-                    }
-
-                    const id = checks[currentCheck];
-                    const iconContainer = document.querySelector(`#check-${id} .check-icon`);
-                    
-                    // Show Spinner
-                    iconContainer.innerHTML = `<div class="check-spinner"></div>`;
-                    document.querySelector(`#check-${id} p`).classList.add('text-gray-700');
-
-                    // Simulate Check Duration (800ms)
-                    setTimeout(() => {
-                        // Show Success
-                        iconContainer.innerHTML = `<svg class="w-6 h-6 check-success" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`;
-                        currentCheck++;
-                        processNext();
-                    }, 800);
-                }
-
-                processNext();
-            }
-
-            preflightYes.addEventListener('click', () => {
-                preflightModal.classList.add('hidden');
-                switchView('grid-view');
-            });
-
-            preflightNo.addEventListener('click', () => {
-                preflightModal.classList.add('hidden');
-                // Stay on landing page
-            });
-
-            // Exit Logic
-            btnExitInward.addEventListener('click', () => {
-                switchView('landing-view');
-            });
-
-
             // --- GRID INITIALIZATION --- //
             function initializeApp() {
                 slotsGrid.innerHTML = '';
                 // Change: All 12 slots are enabled
                 for (let i = 1; i <= 12; i++) {
                     const slotId = `${i}.1.1.`;
-                    const isActive = true; // All active now
                     
                     let slotState = slotData[slotId] ? slotData[slotId] : { status: 'empty' };
                     slotData[slotId] = slotState;
@@ -720,7 +478,7 @@
                              }
                         }, 5000);
                     }
-                }, 15000);
+                }, 60000);
             };
 
             // --- GLOBAL EVENT LISTENERS --- //
@@ -729,7 +487,7 @@
             // --- START APP --- //
             initializeApp();
             updateDateTime();
-            setInterval(updateDateTime, 15000);
+            setInterval(updateDateTime, 60000);
         });
     </script>
 
