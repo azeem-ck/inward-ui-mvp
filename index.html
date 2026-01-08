@@ -188,6 +188,11 @@
             background-color: #9CA3AF !important;
             cursor: not-allowed;
         }
+
+        /* Reset direction for text inside slots since the container is RTL */
+        .slot-text {
+            direction: ltr;
+        }
     </style>
 </head>
 
@@ -237,7 +242,9 @@
                         Number of available storage locations: <span id="storage-count" class="font-bold text-primary-dark text-lg ml-2">48</span>
                     </div>
                 </div>
+                <!-- Reversing the flow using dir="rtl" -->
                 <div id="inwarding-slots-grid"
+                    dir="rtl"
                     class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-12 gap-4">
                     <!-- Slots will be dynamically populated by the script -->
                 </div>
@@ -248,7 +255,7 @@
 
     <!-- Bin Details Modal Dialog -->
     <div id="inwarding-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-7xl p-8">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-7xl p-8 relative">
             <!-- Main 3-Pane Content -->
             <div id="inwarding-modal-content">
 
@@ -354,7 +361,7 @@
             // --- GRID INITIALIZATION --- //
             function initializeApp() {
                 slotsGrid.innerHTML = '';
-                // Change: All 12 slots are enabled
+                // The loop remains 1 to 12. The CSS 'dir="rtl"' handles the visual reversal.
                 for (let i = 1; i <= 12; i++) {
                     const slotId = `${i}.1.1.`;
                     
@@ -387,12 +394,12 @@
                     } else {
                         innerHtml = `<div class="flex-grow"></div>`;
                     }
-                    slotWrapper.innerHTML = innerHtml + `<p class="text-xs text-center text-primary-dark mt-2">Slot:<br>${slotId}</p>`;
+                    // Wrapped label in a span to prevent it from inheriting RTL direction (keeping dots on the right)
+                    slotWrapper.innerHTML = innerHtml + `<p class="text-xs text-center text-primary-dark mt-2 slot-text">Slot:<br>${slotId}</p>`;
 
                     slotsGrid.appendChild(slotWrapper);
 
                     if (slotState.status === 'empty') {
-                        // Change: Directly open modal on click
                         slotWrapper.addEventListener('click', () => openInwardingModal(slotId));
                     }
                 }
