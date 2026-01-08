@@ -193,6 +193,28 @@
         .slot-text {
             direction: ltr;
         }
+
+        .slot-group-container {
+            border: 2px dashed #D1D5DB;
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 1.25rem;
+            padding: 1.25rem;
+            display: grid;
+            /* Maintaining 6 columns */
+            grid-template-columns: repeat(6, minmax(0, 1fr));
+            /* Increased gap for visual separation */
+            gap: 1.5rem;
+            /* Added max-width and margin auto to prevent excessive stretching */
+            width: 100%;
+            max-width: 800px;
+        }
+
+        /* Desktop specific sizing for larger slots */
+        @media (min-width: 1280px) {
+            .inwarding-slot {
+                min-height: 200px; /* Slightly reduced to keep everything in view */
+            }
+        }
     </style>
 </head>
 
@@ -229,7 +251,7 @@
         </header>
 
         <!-- Main Content Area -->
-        <main class="flex-grow p-4 md:p-6">
+        <main class="flex-grow p-4 md:p-6 overflow-y-auto">
             
             <!-- Grid View (Default View) -->
             <div id="grid-view" class="container mx-auto">
@@ -242,11 +264,12 @@
                         Number of available storage locations: <span id="storage-count" class="font-bold text-primary-dark text-lg ml-2">48</span>
                     </div>
                 </div>
-                <!-- Reversing the flow using dir="rtl" -->
+
+                <!-- Grouped View with dir="rtl" - Maintain single row on large screens -->
                 <div id="inwarding-slots-grid"
                     dir="rtl"
-                    class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-12 gap-4">
-                    <!-- Slots will be dynamically populated by the script -->
+                    class="flex flex-col lg:flex-row gap-8 items-center justify-center w-full">
+                    <!-- Right Group (Slots 1-6) and Left Group (Slots 8-13) will be dynamically populated -->
                 </div>
             </div>
 
@@ -358,51 +381,64 @@
                 dateTimeElement.textContent = `${timeString} ${now.toLocaleDateString('en-US', { weekday: 'short' })} ${yearString}`;
             }
 
-            // --- GRID INITIALIZATION --- //
-            function initializeApp() {
-                slotsGrid.innerHTML = '';
-                // The loop remains 1 to 12. The CSS 'dir="rtl"' handles the visual reversal.
-                for (let i = 1; i <= 12; i++) {
-                    const slotId = `${i}.1.1.`;
-                    
-                    let slotState = slotData[slotId] ? slotData[slotId] : { status: 'empty' };
-                    slotData[slotId] = slotState;
+            // --- HELPER TO CREATE SLOTS --- //
+            function createSlotElement(i) {
+                const slotId = `${i}.1.1.`;
+                let slotState = slotData[slotId] ? slotData[slotId] : { status: 'empty' };
+                slotData[slotId] = slotState;
 
-                    const slotWrapper = document.createElement('div');
-                    slotWrapper.id = `slot-${slotId}`;
-                    slotWrapper.className = `inwarding-slot rounded-lg p-3 flex flex-col aspect-[2/4] slot-${slotState.status}`;
-                    slotWrapper.dataset.slotId = slotId;
+                const slotWrapper = document.createElement('div');
+                slotWrapper.id = `slot-${slotId}`;
+                slotWrapper.className = `inwarding-slot rounded-lg p-3 flex flex-col aspect-[2/4] slot-${slotState.status}`;
+                slotWrapper.dataset.slotId = slotId;
 
-                    let innerHtml = '';
-                    
-                    if (slotState.status === 'processing') {
-                        // Processing: Amber Hourglass
-                        innerHtml = `
+                let innerHtml = '';
+                if (slotState.status === 'processing') {
+                    innerHtml = `
                     <div class="flex-grow flex flex-col items-center justify-center text-center">
                         <svg class="w-12 h-12 text-amber-500 animate-pulse" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M6 2v6h.01L6 8.01 10 12l-4 4 .01.01H6V22h12v-5.99h-.01L18 16l-4-4 4-3.99-.01-.01H18V2H6z"/>
                         </svg>
                     </div>`;
-                    } else if (slotState.status === 'completed') {
-                        // Completed: Green Check
-                        innerHtml = `
+                } else if (slotState.status === 'completed') {
+                    innerHtml = `
                     <div class="flex-grow flex flex-col items-center justify-center text-center">
                          <svg class="w-12 h-12 text-green-700" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M10 15.172l9.192-9.193 1.415 1.414L10 18l-6.364-6.364 1.414-1.414z"/>
                         </svg>
                     </div>`;
-                    } else {
-                        innerHtml = `<div class="flex-grow"></div>`;
-                    }
-                    // Wrapped label in a span to prevent it from inheriting RTL direction (keeping dots on the right)
-                    slotWrapper.innerHTML = innerHtml + `<p class="text-xs text-center text-primary-dark mt-2 slot-text">Slot:<br>${slotId}</p>`;
-
-                    slotsGrid.appendChild(slotWrapper);
-
-                    if (slotState.status === 'empty') {
-                        slotWrapper.addEventListener('click', () => openInwardingModal(slotId));
-                    }
+                } else {
+                    innerHtml = `<div class="flex-grow"></div>`;
                 }
+                slotWrapper.innerHTML = innerHtml + `<p class="text-xs text-center text-primary-dark mt-2 slot-text font-medium">Slot:<br>${slotId}</p>`;
+
+                if (slotState.status === 'empty') {
+                    slotWrapper.addEventListener('click', () => openInwardingModal(slotId));
+                }
+                return slotWrapper;
+            }
+
+            // --- GRID INITIALIZATION --- //
+            function initializeApp() {
+                slotsGrid.innerHTML = '';
+
+                // Create Right Group (Slots 1-6)
+                const rightGroup = document.createElement('div');
+                rightGroup.className = 'slot-group-container';
+                for (let i = 1; i <= 6; i++) {
+                    rightGroup.appendChild(createSlotElement(i));
+                }
+
+                // Create Left Group (Slots 8-13)
+                const leftGroup = document.createElement('div');
+                leftGroup.className = 'slot-group-container';
+                for (let i = 8; i <= 13; i++) {
+                    leftGroup.appendChild(createSlotElement(i));
+                }
+
+                // Append to grid (RTL will place rightGroup on the right)
+                slotsGrid.appendChild(rightGroup);
+                slotsGrid.appendChild(leftGroup);
             }
 
             // --- BIN DETAILS MODAL LOGIC --- //
@@ -410,13 +446,11 @@
                 currentSlotId = slotId;
                 document.getElementById('modal-slot-id').textContent = slotId;
                 
-                // Reset Inputs
                 inputToteId.value = '';
                 inputSkuId.value = '';
                 inputUnitCount.value = '';
-                validateInputs(); // Initialize button state
+                validateInputs();
 
-                // Show Modal
                 modal.classList.remove('hidden');
             }
 
@@ -425,7 +459,6 @@
                 currentSlotId = null;
             }
 
-            // --- VALIDATION LOGIC --- //
             function validateInputs() {
                 const toteId = inputToteId.value.trim();
                 const skuId = inputSkuId.value.trim();
@@ -442,56 +475,45 @@
                 }
             }
 
-            // Attach listeners
             [inputToteId, inputSkuId, inputUnitCount].forEach(input => {
                 input.addEventListener('input', validateInputs);
             });
 
-            // Done Action
             modalDoneBtn.onclick = () => {
                 if (!currentSlotId) return;
                 
-                // Decrement available storage
                 if (availableStorageCount > 0) {
                     availableStorageCount--;
                     storageCountDisplay.textContent = availableStorageCount;
                 }
 
-                // 1. Set status to 'processing' (Amber Hourglass)
                 slotData[currentSlotId] = {
                     status: 'processing',
                     toteType: '1-partition'
                 };
 
-                // Capture ID for the timeout closure
                 const slotIdToReset = currentSlotId;
 
                 closeInwardingModal();
-                initializeApp(); // Re-render grid to show processing state
+                initializeApp();
 
-                // 2. Wait 1 minute (60000ms)
                 setTimeout(() => {
                     if (slotData[slotIdToReset] && slotData[slotIdToReset].status === 'processing') {
-                        // 3. Change status to 'completed' (Green Check)
                         slotData[slotIdToReset] = { status: 'completed' };
-                        initializeApp(); // Re-render grid
+                        initializeApp();
 
-                        // 4. Wait 5 seconds
                         setTimeout(() => {
                              if (slotData[slotIdToReset] && slotData[slotIdToReset].status === 'completed') {
-                                // 5. Revert to 'empty'
                                 slotData[slotIdToReset] = { status: 'empty' };
-                                initializeApp(); // Re-render grid
+                                initializeApp();
                              }
                         }, 5000);
                     }
                 }, 60000);
             };
 
-            // --- GLOBAL EVENT LISTENERS --- //
             modal.addEventListener('click', e => { if (e.target.id === 'inwarding-modal') closeInwardingModal(); });
 
-            // --- START APP --- //
             initializeApp();
             updateDateTime();
             setInterval(updateDateTime, 60000);
