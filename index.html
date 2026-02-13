@@ -62,17 +62,15 @@
             border-color: var(--primary-dark);
         }
 
-        /* Processing State (Amber Hourglass) */
         .slot-processing {
-            background-color: #FFFBEB; /* Amber 50 */
-            border: 2px solid #F59E0B; /* Amber 500 */
+            background-color: #FFFBEB;
+            border: 2px solid #F59E0B;
             cursor: not-allowed;
         }
 
-        /* Completed State (Green Check) */
         .slot-completed {
-            background-color: #ECFDF5; /* Emerald 50 */
-            border: 2px solid #10B981; /* Emerald 500 */
+            background-color: #ECFDF5;
+            border: 2px solid #10B981;
             cursor: not-allowed;
         }
 
@@ -92,7 +90,6 @@
             border: 1px solid #E5E7EB;
         }
 
-        /* Left Pane: Form */
         .partition-form-group {
             background-color: white;
             border-radius: 8px;
@@ -123,8 +120,6 @@
             box-shadow: 0 0 0 2px rgba(0, 60, 60, 0.2);
         }
 
-
-        /* Center Pane: Visualization */
         .tote-vis-container {
             width: 100%;
             max-width: 280px;
@@ -134,7 +129,7 @@
             margin: auto;
             display: grid;
             background-color: #E5E7EB;
-            grid-template-columns: 1fr; /* Always 1 partition now */
+            grid-template-columns: 1fr;
         }
 
         .tote-vis-partition {
@@ -146,7 +141,6 @@
             color: var(--primary-dark);
         }
 
-        /* Right Pane: Action */
         .placement-animation-container {
             height: 200px;
             background: linear-gradient(to top, #D1D5DB 30%, transparent 30%);
@@ -189,7 +183,6 @@
             cursor: not-allowed;
         }
 
-        /* Reset direction for text inside slots since the container is RTL */
         .slot-text {
             direction: ltr;
         }
@@ -200,19 +193,15 @@
             border-radius: 1.25rem;
             padding: 1.25rem;
             display: grid;
-            /* Maintaining 6 columns */
             grid-template-columns: repeat(6, minmax(0, 1fr));
-            /* Increased gap for visual separation */
             gap: 1.5rem;
-            /* Added max-width and margin auto to prevent excessive stretching */
             width: 100%;
             max-width: 800px;
         }
 
-        /* Desktop specific sizing for larger slots */
         @media (min-width: 1280px) {
             .inwarding-slot {
-                min-height: 200px; /* Slightly reduced to keep everything in view */
+                min-height: 200px;
             }
         }
     </style>
@@ -253,7 +242,7 @@
         <!-- Main Content Area -->
         <main class="flex-grow p-4 md:p-6 overflow-y-auto">
             
-            <!-- Grid View (Default View) -->
+            <!-- Grid View -->
             <div id="grid-view" class="container mx-auto">
                 <div class="flex flex-col md:flex-row md:justify-between md:items-end mb-6 gap-4">
                     <h2 class="text-lg font-semibold text-primary-darkest">Select Slot for Tote Inwarding</h2>
@@ -265,11 +254,23 @@
                     </div>
                 </div>
 
-                <!-- Grouped View with dir="rtl" - Maintain single row on large screens -->
-                <div id="inwarding-slots-grid"
-                    dir="rtl"
-                    class="flex flex-col lg:flex-row gap-8 items-center justify-center w-full">
-                    <!-- Right Group (Slots 1-6) and Left Group (Slots 8-13) will be dynamically populated -->
+                <!-- Grouped View -->
+                <div class="flex flex-col items-center justify-center w-full max-w-[1632px] mx-auto">
+                    <div id="inwarding-slots-grid"
+                        dir="rtl"
+                        class="flex flex-col lg:flex-row gap-8 items-center justify-center w-full">
+                        <!-- Populated by JS -->
+                    </div>
+
+                    <!-- Exit Inward Button (Aligned below the right corner of the slot groups) -->
+                    <div class="w-full flex justify-end mt-8">
+                        <button id="exit-inward-btn" class="flex items-center px-8 py-3 bg-red-50 text-red-700 border border-red-200 font-bold rounded-xl hover:bg-red-100 hover:border-red-300 transition-all shadow-sm active:scale-95">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                            </svg>
+                            Exit Inward
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -279,22 +280,17 @@
     <!-- Bin Details Modal Dialog -->
     <div id="inwarding-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-7xl p-8 relative">
-            <!-- Main 3-Pane Content -->
             <div id="inwarding-modal-content">
-
-                <!-- ===== LEFT PANE: DATA ENTRY ===== -->
+                <!-- LEFT PANE -->
                 <div class="modal-pane">
                     <h2 class="text-xl font-bold text-center text-primary-darkest mb-4">Tote Details</h2>
                     <div class="flex-grow overflow-y-auto pr-2">
-                        <!-- Shared Tote ID -->
                         <div class="partition-form-group bg-gray-100">
                             <label for="tote-id">Tote ID</label>
                             <input type="text" id="tote-id" name="tote-id" placeholder="Scan or enter Tote ID" class="modal-input">
                         </div>
-                        <!-- Dynamic Partition Forms (Now Static 1 Partition) -->
                         <div id="partition-forms-container">
                             <div class="partition-form-group">
-                                <p class="font-semibold text-sm text-primary-darkest mb-3 hidden">Partition 1</p>
                                 <div>
                                     <label for="sku-id-0">SKU ID</label>
                                     <input type="text" id="sku-id-0" name="sku-id-0" placeholder="Scan or enter SKU" class="modal-input">
@@ -308,29 +304,26 @@
                     </div>
                 </div>
 
-                <!-- ===== CENTER PANE: VISUALIZATION ===== -->
+                <!-- CENTER PANE -->
                 <div class="modal-pane">
                     <h2 class="text-xl font-bold text-center text-primary-darkest mb-4">Tote Configuration</h2>
                     <div id="tote-visualization-container" class="flex-grow flex items-center justify-center">
-                         <div class="tote-vis-container tote-vis-1">
-                        </div>
+                         <div class="tote-vis-container tote-vis-1"></div>
                     </div>
                     <p class="text-sm font-semibold text-center text-gray-500 mt-2">
                         Slot: <span id="modal-slot-id" class="font-bold text-primary-darkest"></span>
                     </p>
                 </div>
 
-                <!-- ===== RIGHT PANE: ACTION ===== -->
+                <!-- RIGHT PANE -->
                 <div class="modal-pane">
                     <h2 class="text-xl font-bold text-center text-primary-darkest mb-4">Confirm Placement</h2>
-                    <!-- Placement Animation -->
                     <div class="placement-animation-container">
                         <div class="placement-animation-tote">TOTE</div>
                     </div>
                     <p class="text-sm font-semibold text-center text-gray-500 my-4">
                         Place tote into the highlighted slot.
                     </p>
-                    <!-- Action Buttons -->
                     <div class="space-y-3 mt-auto">
                         <button id="modal-done-btn" disabled
                             class="w-full text-center py-4 px-4 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 text-lg btn-disabled">Done</button>
@@ -339,9 +332,7 @@
                         </p>
                     </div>
                 </div>
-
             </div>
-            <!-- Close button in corner -->
             <button onclick="closeInwardingModal()"
                 class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
@@ -352,27 +343,47 @@
         </div>
     </div>
 
+    <!-- Exit Orchestrator Modal -->
+    <div id="exit-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-[60] p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full border border-gray-100">
+            <div class="mb-6 flex justify-center">
+                <div class="bg-red-50 p-4 rounded-full">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                </div>
+            </div>
+            <div class="text-center">
+                <h3 class="text-2xl font-bold text-gray-900 mb-2">Inward orchestrator will be stopped.</h3>
+                <p class="text-gray-600 text-lg mb-8 leading-relaxed">
+                    To initiate inward again, please go to the supervisor UI
+                </p>
+                <button onclick="closeExitModal()" class="w-full py-4 bg-gray-900 text-white text-lg font-bold rounded-xl hover:bg-black transition-all shadow-lg active:scale-[0.98]">
+                    Acknowledge
+                </button>
+            </div>
+        </div>
+    </div>
+
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // DOM Elements
             const slotsGrid = document.getElementById('inwarding-slots-grid');
             const modal = document.getElementById('inwarding-modal');
+            const exitModal = document.getElementById('exit-modal');
+            const exitBtn = document.getElementById('exit-inward-btn');
             const dateTimeElement = document.getElementById('date-time');
             const modalDoneBtn = document.getElementById('modal-done-btn');
             
-            // Modal Inputs for Validation
             const inputToteId = document.getElementById('tote-id');
             const inputSkuId = document.getElementById('sku-id-0');
             const inputUnitCount = document.getElementById('unit-count-0');
             const storageCountDisplay = document.getElementById('storage-count');
 
-            // --- State --- //
             let slotData = {};
             let currentSlotId = null;
             let availableStorageCount = 48;
 
-            // --- DATE & TIME --- //
             function updateDateTime() {
                 const now = new Date();
                 const options = { weekday: 'short', hour: '2-digit', minute: '2-digit', hour12: true };
@@ -381,7 +392,6 @@
                 dateTimeElement.textContent = `${timeString} ${now.toLocaleDateString('en-US', { weekday: 'short' })} ${yearString}`;
             }
 
-            // --- HELPER TO CREATE SLOTS --- //
             function createSlotElement(i) {
                 const slotId = `${i}.1.1.`;
                 let slotState = slotData[slotId] ? slotData[slotId] : { status: 'empty' };
@@ -418,39 +428,29 @@
                 return slotWrapper;
             }
 
-            // --- GRID INITIALIZATION --- //
             function initializeApp() {
                 slotsGrid.innerHTML = '';
-
-                // Create Right Group (Slots 1-6)
                 const rightGroup = document.createElement('div');
                 rightGroup.className = 'slot-group-container';
                 for (let i = 1; i <= 6; i++) {
                     rightGroup.appendChild(createSlotElement(i));
                 }
-
-                // Create Left Group (Slots 8-13)
                 const leftGroup = document.createElement('div');
                 leftGroup.className = 'slot-group-container';
                 for (let i = 8; i <= 13; i++) {
                     leftGroup.appendChild(createSlotElement(i));
                 }
-
-                // Append to grid (RTL will place rightGroup on the right)
                 slotsGrid.appendChild(rightGroup);
                 slotsGrid.appendChild(leftGroup);
             }
 
-            // --- BIN DETAILS MODAL LOGIC --- //
             function openInwardingModal(slotId) {
                 currentSlotId = slotId;
                 document.getElementById('modal-slot-id').textContent = slotId;
-                
                 inputToteId.value = '';
                 inputSkuId.value = '';
                 inputUnitCount.value = '';
                 validateInputs();
-
                 modal.classList.remove('hidden');
             }
 
@@ -459,13 +459,19 @@
                 currentSlotId = null;
             }
 
+            window.closeExitModal = () => {
+                exitModal.classList.add('hidden');
+            }
+
+            exitBtn.onclick = () => {
+                exitModal.classList.remove('hidden');
+            }
+
             function validateInputs() {
                 const toteId = inputToteId.value.trim();
                 const skuId = inputSkuId.value.trim();
                 const count = inputUnitCount.value;
-
                 const isValid = toteId.length > 0 && skuId.length > 0 && count > 0;
-
                 if (isValid) {
                     modalDoneBtn.disabled = false;
                     modalDoneBtn.classList.remove('btn-disabled');
@@ -481,19 +487,12 @@
 
             modalDoneBtn.onclick = () => {
                 if (!currentSlotId) return;
-                
                 if (availableStorageCount > 0) {
                     availableStorageCount--;
                     storageCountDisplay.textContent = availableStorageCount;
                 }
-
-                slotData[currentSlotId] = {
-                    status: 'processing',
-                    toteType: '1-partition'
-                };
-
+                slotData[currentSlotId] = { status: 'processing', toteType: '1-partition' };
                 const slotIdToReset = currentSlotId;
-
                 closeInwardingModal();
                 initializeApp();
 
@@ -501,7 +500,6 @@
                     if (slotData[slotIdToReset] && slotData[slotIdToReset].status === 'processing') {
                         slotData[slotIdToReset] = { status: 'completed' };
                         initializeApp();
-
                         setTimeout(() => {
                              if (slotData[slotIdToReset] && slotData[slotIdToReset].status === 'completed') {
                                 slotData[slotIdToReset] = { status: 'empty' };
@@ -509,14 +507,15 @@
                              }
                         }, 5000);
                     }
-                }, 60000);
+                }, 30000);
             };
 
             modal.addEventListener('click', e => { if (e.target.id === 'inwarding-modal') closeInwardingModal(); });
+            exitModal.addEventListener('click', e => { if (e.target.id === 'exit-modal') closeExitModal(); });
 
             initializeApp();
             updateDateTime();
-            setInterval(updateDateTime, 60000);
+            setInterval(updateDateTime, 30000);
         });
     </script>
 
